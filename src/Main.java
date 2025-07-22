@@ -2,59 +2,76 @@ import java.util.Arrays;
 
 public class Main {
 
+    /**
+     * Bu generic metod istənilən tipdə olan massivdə iki elementin yerini dəyişir.
+     * Düzgün olmayan indekslər daxil edildikdə xəta atır (throws exception).
+     *
+     * @param massiv Üzərində əməliyyat aparılacaq massiv.
+     * @param index1 Dəyişdiriləcək birinci elementin indeksi.
+     * @param index2 Dəyişdiriləcək ikinci elementin indeksi.
+     * @param <T>    Massivin elementlərinin tipi.
+     * @throws IndexOutOfBoundsException Əgər daxil edilən indekslər massivin hüdudlarından kənarda olarsa.
+     * @throws IllegalArgumentException Əgər massiv 'null' olarsa.
+     */
+    public static <T> void elementlerinYeriniDeyis(T[] massiv, int index1, int index2)
+            throws IndexOutOfBoundsException, IllegalArgumentException {
 
-    public static <T> void elementlerinYeriniDeyis(T[] massiv, int index1, int index2) {
-        // Parametrlərin düzgünlüyünü yoxlayırıq
-        if (massiv == null || index1 < 0 || index2 < 0 || index1 >= massiv.length || index2 >= massiv.length) {
-            System.out.println("Xəta: Massiv boşdur və ya indekslər massivin hüdudlarından kənardadır.");
-            // throw new IndexOutOfBoundsException("Indekslər massivin hüdudlarından kənardadır.");
-            return; // Metodun işini dayandırırıq
+        // 1. Massivin null olub-olmadığını yoxlayırıq
+        if (massiv == null) {
+            throw new IllegalArgumentException("Xəta: Massiv 'null' ola bilməz.");
         }
 
-        // Yer dəyişmə alqoritmi
-        T muveqqetiElement = massiv[index1]; // 1-ci elementin dəyərini müvəqqəti yadda saxlayırıq
-        massiv[index1] = massiv[index2];     // 2-ci elementin dəyərini 1-cinin yerinə yazırıq
-        massiv[index2] = muveqqetiElement;   // Müvəqqəti saxlanan dəyəri 2-cinin yerinə yazırıq
+        // 2. İndekslərin massivin hüdudları daxilində olub-olmadığını yoxlayırıq
+        if (index1 < 0 || index1 >= massiv.length || index2 < 0 || index2 >= massiv.length) {
+            // Əgər şərt ödənsə, proqramın işini dayandırıb xəta atırıq.
+            throw new IndexOutOfBoundsException(
+                    "Xəta: Daxil edilən indekslər (" + index1 + ", " + index2 + ") " +
+                            "massivin hüdudlarından (0-" + (massiv.length - 1) + ") kənardadır."
+            );
+        }
+
+        // Əgər yuxarıdakı yoxlamalardan heç biri xəta atmazsa, yer dəyişməni icra edirik.
+        T muveqqetiElement = massiv[index1];
+        massiv[index1] = massiv[index2];
+        massiv[index2] = muveqqetiElement;
     }
 
     public static void main(String[] args) {
-        // --- Integer (Tam ədəd) massivi ilə test ---
-        System.out.println("--- Tam Ədəd Massivi Testi ---");
-        Integer[] reqemler = {10, 20, 30, 40, 50};
-        System.out.println("Dəyişmədən əvvəl: " + Arrays.toString(reqemler));
-
-        // 1-ci indeks (dəyəri 20) ilə 3-cü indeksin (dəyəri 40) yerini dəyişək
-        elementlerinYeriniDeyis(reqemler, 1, 3);
-
-        System.out.println("Dəyişmədən sonra:  " + Arrays.toString(reqemler));
-        System.out.println("--------------------------------\n");
-
-
-        // --- String (Mətn) massivi ilə test ---
-        System.out.println("--- Mətn Massivi Testi ---");
+        // --- Uğurlu test nümunəsi ---
+        System.out.println("--- Uğurlu Test ---");
         String[] sozler = {"Mercedes", "BMW", "Audi", "Toyota"};
         System.out.println("Dəyişmədən əvvəl: " + Arrays.toString(sozler));
 
-        // 0-cı indeks ("Mercedes") ilə 2-ci indeksin ("Audi") yerini dəyişək
-        elementlerinYeriniDeyis(sozler, 0, 2);
+        try {
+            elementlerinYeriniDeyis(sozler, 1, 3); // Düzgün indekslər
+            System.out.println("Dəyişmədən sonra:  " + Arrays.toString(sozler));
+        } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            System.out.println("Gözlənilməz xəta baş verdi: " + e.getMessage());
+        }
+        System.out.println("--------------------\n");
 
-        System.out.println("Dəyişmədən sonra:  " + Arrays.toString(sozler));
-        System.out.println("---------------------------\n");
 
+        // --- Xətalı test nümunəsi (handle etmək) ---
+        System.out.println("--- Xətalı İndeks Testi ---");
+        Integer[] reqemler = {10, 20, 30, 40, 50}; // Massivin 5 elementi var (indekslər 0-4)
+        System.out.println("Massiv: " + Arrays.toString(reqemler));
 
-        // --- Double (Onluq kəsr) massivi ilə test ---
-        System.out.println("--- Onluq Kəsr Massivi Testi ---");
-        Double[] kesrler = {3.14, 9.81, 1.61, 2.71};
-        System.out.println("Dəyişmədən əvvəl: " + Arrays.toString(kesrler));
+        // Xəta yarada biləcək metodu 'try-catch' bloku daxilində çağırırıq
+        try {
+            // 10-cu indeks mövcud olmadığı üçün bu sətir xəta atacaq
+            elementlerinYeriniDeyis(reqemler, 1, 10);
 
-        // 0-cı indeks ilə 3-cü indeksin yerini dəyişək
-        elementlerinYeriniDeyis(kesrler, 0, 3);
-
-        System.out.println("Dəyişmədən sonra:  " + Arrays.toString(kesrler));
-        System.out.println("--------------------------------\n");
-
-        // --- Səhv indeks ilə test ---
-        System.out.println("--- Səhv İndeks Testi ---");
-        elementlerinYeriniDeyis(reqemler, 0, 99); // 99-cu indeks mövcud deyil
+            // Bu sətir heç vaxt icra olunmayacaq, çünki yuxarıda xəta baş verəcək
+            System.out.println("Dəyişmə uğurla başa çatdı.");
+        } catch (IndexOutOfBoundsException e) {
+            // Metodun atdığı xətanı burada tuturuq və mesajını çap edirik
+            System.out.println("Xəta tutuldu: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Xəta tutuldu: " + e.getMessage());
+        } finally {
+            // Bu blok xəta olsa da, olmasa da hər zaman icra olunur
+            System.out.println("Test əməliyyatı bitdi.");
+        }
+        System.out.println("--------------------------");
     }
 }
